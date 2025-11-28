@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drone Tracker</title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f0f0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+    </style>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibGVwcm9kaWdlIiwiYSI6ImNseGFmbHJxejJweGcybXE0a2Zmb3pvdTIifQ.Goc8xotcFqDoEocarNhqXA';
+
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/satellite-streets-v11',
+            center: [11.5021, 3.8480],
+            zoom: 12
+        });
+
+        let marker;
+
+        function updateMap(lng, lat) {
+            if (marker) {
+                marker.remove();
+            }
+            marker = new mapboxgl.Marker()
+                .setLngLat([lng, lat])
+                .addTo(map);
+            map.flyTo({ center: [lng, lat], zoom: 18 });
+        }
+
+        const ws = new WebSocket('ws://localhost:8765');
+        ws.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            updateMap(data.lon, data.lat);
+        };
+    </script>
+</body>
+</html>
+
